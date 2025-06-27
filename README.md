@@ -1,3 +1,6 @@
+LINK OF VIDEO FOR REFERENCE
+https://youtu.be/hPh-otmbVos
+
 Battleship Game with Encryption
 A secure multiplayer Battleship game implementation featuring AES-256 encryption, authentication, and reconnection handling.
 
