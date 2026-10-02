@@ -477,12 +477,23 @@ class GameSession:
         if username not in self.reconnect_events:
             print(f"[ERROR] No reconnect event for {username} in GameSession")
             return None, None
-            
+
+        event = self.reconnect_events[username]
+
+        # The player may already have logged back in before the game noticed they had
+        # gone (for example they dropped out during the opponent's turn). Use that
+        # connection instead of throwing it away. The event is left set on purpose so
+        # the disconnect_timeout watcher in server.py also sees that they are back.
+        early_sock = self.reconnected_sockets.pop(username, None) if event.is_set() else None
+        if early_sock is not None and check_connection(early_sock):
+            if username in self.reconnection_in_progress:
+                self.reconnection_in_progress[username] = False
+            return early_sock, early_sock
+
         # Reset the event in case it was set previously
-        self.reconnect_events[username].clear()
+        event.clear()
         
         # Wait for the event with timeout
-        event = self.reconnect_events[username]
         success = event.wait(timeout)
         
         if success:
@@ -491,7 +502,7 @@ class GameSession:
                 print(f"[ERROR] Event set but no socket for {username}")
                 return None, None
                 
-            sock = self.reconnected_sockets[username]
+            sock = self.reconnected_sockets.pop(username)
             # print(f"[DEBUG] {username} reconnected successfully with socket {sock}")
             return sock, sock  # Return socket twice to match old interface
             

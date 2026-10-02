@@ -617,6 +617,13 @@ def main():
                 
                 result = None
             
+            # The match is over, so nobody can reconnect to it any more. Forget both
+            # players' reconnect records; otherwise logging in again with the same name
+            # looks like a reconnection to this old match and the player never gets
+            # back into the queue.
+            disconnected_players.pop(player1.username, None)
+            disconnected_players.pop(player2.username, None)
+
             # Reset active game
             active_game = None
             

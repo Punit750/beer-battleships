@@ -1,0 +1,16 @@
+# Render Blueprint for the online version of BEER Battleships.
+# One free web service: web_gateway.py serves the game page and starts server.py
+# inside the same service, so players only need a browser.
+services:
+  - type: web
+    name: beer-battleships
+    runtime: python
+    plan: free
+    region: singapore            # the Render region closest to Perth and India
+    buildCommand: pip install -r requirements.txt
+    startCommand: python web_gateway.py
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit    # redeploys by itself whenever the GitHub repo changes
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.14.3
